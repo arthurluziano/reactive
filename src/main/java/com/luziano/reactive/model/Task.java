@@ -1,10 +1,12 @@
 package com.luziano.reactive.model;
 
-import com.luziano.reactive.service.TaskService;
 import lombok.Getter;
+import org.springframework.data.annotation.Id;
 
 @Getter
 public class Task {
+    @Id
+    private String id;
     private String title;
     private String description;
     private int priority;
@@ -18,11 +20,6 @@ public class Task {
     }
 
     public Task() {}
-
-    public Task newTask() {
-        TaskService.taskList.add(this);
-        return this;
-    }
 
     public Task insert() {
         return builderFrom(this)
