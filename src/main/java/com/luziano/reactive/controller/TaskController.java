@@ -1,6 +1,8 @@
 package com.luziano.reactive.controller;
 
 import com.luziano.reactive.model.Task;
+import com.luziano.reactive.model.converter.TaskDTOConverter;
+import com.luziano.reactive.model.dto.TaskDTO;
 import com.luziano.reactive.service.TaskService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,14 +16,17 @@ import java.util.List;
 public class TaskController {
 
     private final TaskService taskService;
+    private final TaskDTOConverter converter;
 
     @GetMapping
-    public Mono<List<Task>> getTasks() {
-        return taskService.list();
+    public Mono<List<TaskDTO>> getTasks() {
+        return taskService.list()
+                .map(converter::convertList);
     }
 
     @PostMapping
-    public Mono<Task> createTask(@RequestBody Task task) {
-        return taskService.insert(task);
+    public Mono<TaskDTO> createTask(@RequestBody Task task) {
+        return taskService.insert(task)
+                .map(converter::convert);
     }
 }
