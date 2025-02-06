@@ -1,18 +1,26 @@
 package com.luziano.reactive.model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
-import org.springframework.data.annotation.Id;
 
 @Getter
+@Entity
 public class Task {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
     private String title;
     private String description;
     private int priority;
     private TaskState state;
 
     public Task(Builder builder) {
+        this.id = builder.id;
         this.title = builder.title;
         this.description = builder.description;
         this.priority = builder.priority;
@@ -36,12 +44,14 @@ public class Task {
     }
 
     public static class Builder {
+        private String id;
         private String title;
         private String description;
         private int priority;
         private TaskState state;
 
         public Builder(Task task) {
+            this.id = task.id;
             this.title = task.title;
             this.description = task.description;
             this.priority = task.priority;
@@ -49,6 +59,11 @@ public class Task {
         }
 
         public Builder() {}
+
+        public Builder withId(String id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder withTitle(String title) {
             this.title = title;
