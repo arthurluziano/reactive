@@ -8,6 +8,7 @@ import com.luziano.reactive.model.dto.TaskDTO;
 import com.luziano.reactive.model.dto.TaskInsertDTO;
 import com.luziano.reactive.model.dto.TaskUpdateDTO;
 import com.luziano.reactive.service.TaskService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,13 +54,13 @@ public class TaskController {
     }
 
     @PostMapping
-    public Mono<TaskDTO> createTask(@RequestBody TaskInsertDTO taskInsertDTO) {
+    public Mono<TaskDTO> createTask(@RequestBody @Valid TaskInsertDTO taskInsertDTO) {
         return taskService.insert(insertDTOConverter.convert(taskInsertDTO))
                 .map(converter::convert);
     }
 
     @PutMapping("/{id}")
-    public Mono<TaskDTO> updateTask(@RequestParam String id, @RequestBody TaskUpdateDTO taskUpdateDTO) {
+    public Mono<TaskDTO> updateTask(@RequestParam String id, @RequestBody @Valid TaskUpdateDTO taskUpdateDTO) {
         return taskService.update(id, updateDTOConverter.convert(taskUpdateDTO))
                 .doOnNext(it -> log.info("Update task with id \"{}\" - ({})", it.getId(), LocalDateTime.now()))
                 .map(converter::convert);

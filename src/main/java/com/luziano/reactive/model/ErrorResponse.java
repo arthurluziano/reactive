@@ -3,6 +3,7 @@ package com.luziano.reactive.model;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
 
 @Getter
 @Setter
@@ -21,6 +22,13 @@ public class ErrorResponse {
         return ErrorResponse.builder()
                 .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .withMessage(ex.getMessage())
+                .build();
+    }
+
+    public static ErrorResponse invalidArgumentsError(FieldError fieldError) {
+        return ErrorResponse.builder()
+                .withStatus(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .withMessage(fieldError.getDefaultMessage())
                 .build();
     }
 
