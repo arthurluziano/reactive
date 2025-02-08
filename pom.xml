@@ -65,7 +65,7 @@
 		<!--  MongoDB  -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+			<artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
 			<version>3.3.4</version>
 		</dependency>
 
