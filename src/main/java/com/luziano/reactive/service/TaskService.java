@@ -2,6 +2,7 @@ package com.luziano.reactive.service;
 
 import com.luziano.reactive.exception.CepNotFoundException;
 import com.luziano.reactive.exception.TaskNotFoundException;
+import com.luziano.reactive.messaging.TaskNotificationProducer;
 import com.luziano.reactive.model.Address;
 import com.luziano.reactive.model.Task;
 import com.luziano.reactive.repository.TaskCustomRepository;
@@ -24,6 +25,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final TaskCustomRepository taskCustomRepository;
     private final AddressService addressService;
+    private final TaskNotificationProducer producer;
 
     public Mono<Task> insert(Task task) {
         return Mono.just(task)
@@ -55,6 +57,7 @@ public class TaskService {
                 .flatMap(it -> updateAddress(it.getT1(), it.getT2()))
                 .map(Task::start)
                 .flatMap(taskRepository::save)
+                .flatMap(producer::sendNotification)
                 .switchIfEmpty(Mono.error(TaskNotFoundException::new))
                 .doOnError(error -> log.error("Error on start task. ID: {} - ({})", id, LocalDateTime.now(), error));
     }
