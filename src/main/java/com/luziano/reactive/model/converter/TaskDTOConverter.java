@@ -32,6 +32,7 @@ public class TaskDTOConverter {
     public Task convert(TaskDTO taskDTO) {
         return Optional.ofNullable(taskDTO)
                 .map(source -> Task.builder()
+                        .withId(source.getId())
                         .withTitle(source.getTitle())
                         .withDescription(source.getDescription())
                         .withPriority(source.getPriority())
