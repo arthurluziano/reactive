@@ -3,8 +3,10 @@ package com.luziano.reactive.controller;
 import com.luziano.reactive.model.TaskState;
 import com.luziano.reactive.model.converter.TaskDTOConverter;
 import com.luziano.reactive.model.converter.TaskInsertDTOConverter;
+import com.luziano.reactive.model.converter.TaskUpdateDTOConverter;
 import com.luziano.reactive.model.dto.TaskDTO;
 import com.luziano.reactive.model.dto.TaskInsertDTO;
+import com.luziano.reactive.model.dto.TaskUpdateDTO;
 import com.luziano.reactive.service.TaskService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,6 +37,7 @@ public class TaskController {
     private final TaskService taskService;
     private final TaskDTOConverter converter;
     private final TaskInsertDTOConverter insertDTOConverter;
+    private final TaskUpdateDTOConverter updateDTOConverter;
 
     @GetMapping
     public Mono<Page<TaskDTO>> getTasks(@RequestParam(required = false) String id,
@@ -51,6 +55,13 @@ public class TaskController {
     @PostMapping
     public Mono<TaskDTO> createTask(@RequestBody TaskInsertDTO taskInsertDTO) {
         return taskService.insert(insertDTOConverter.convert(taskInsertDTO))
+                .map(converter::convert);
+    }
+
+    @PutMapping("/{id}")
+    public Mono<TaskDTO> updateTask(@RequestParam String id, @RequestBody TaskUpdateDTO taskUpdateDTO) {
+        return taskService.update(id, updateDTOConverter.convert(taskUpdateDTO))
+                .doOnNext(it -> log.info("Update task with id \"{}\" - ({})", it.getId(), LocalDateTime.now()))
                 .map(converter::convert);
     }
 
