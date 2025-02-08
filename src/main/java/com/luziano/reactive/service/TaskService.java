@@ -25,7 +25,8 @@ public class TaskService {
     public Mono<Task> insert(Task task) {
         return Mono.just(task)
                 .map(Task::insert)
-                .flatMap(this::save);
+                .flatMap(this::save)
+                .doOnError(error -> log.error("Error during save task with title \"{}\". Message: {} - ({})", task.getTitle(), error.getMessage(), LocalDateTime.now()));
     }
 
     public Mono<Page<Task>> findPaginated(Task task, Integer pageNumber, Integer pageSize) {
