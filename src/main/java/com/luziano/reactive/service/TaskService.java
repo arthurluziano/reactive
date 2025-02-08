@@ -1,6 +1,7 @@
 package com.luziano.reactive.service;
 
 import com.luziano.reactive.exception.TaskNotFoundException;
+import com.luziano.reactive.model.Address;
 import com.luziano.reactive.model.Task;
 import com.luziano.reactive.repository.TaskCustomRepository;
 import com.luziano.reactive.repository.TaskRepository;
@@ -21,6 +22,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskCustomRepository taskCustomRepository;
+    private final AddressService addressService;
 
     public Mono<Task> insert(Task task) {
         return Mono.just(task)
@@ -44,6 +46,21 @@ public class TaskService {
 
     public Mono<Void> deleteById(String id) {
         return taskRepository.deleteById(id);
+    }
+
+    public Mono<Task> start(String id, String zipCode) {
+        return taskRepository.findById(id)
+                .zipWhen(it -> addressService.getAddress(zipCode))
+                .flatMap(it -> updateAddress(it.getT1(), it.getT2()))
+                .map(Task::start)
+                .flatMap(taskRepository::save)
+                .switchIfEmpty(Mono.error(TaskNotFoundException::new))
+                .doOnError(error -> log.error("Error on start task. ID: {} - ({})", id, LocalDateTime.now(), error));
+    }
+
+    private Mono<Task> updateAddress(Task task, Address address) {
+        return Mono.just(task)
+                .map(it -> task.updateAddress(address));
     }
 
     private Mono<Task> save(Task task) {
