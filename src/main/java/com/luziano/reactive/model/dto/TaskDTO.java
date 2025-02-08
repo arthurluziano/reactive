@@ -1,5 +1,6 @@
 package com.luziano.reactive.model.dto;
 
+import com.luziano.reactive.model.Address;
 import com.luziano.reactive.model.TaskState;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,4 +13,5 @@ public class TaskDTO {
     private String description;
     private int priority;
     private TaskState state;
+    private Address address;
 }

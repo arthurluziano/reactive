@@ -1,5 +1,6 @@
 package com.luziano.reactive.service;
 
+import com.luziano.reactive.exception.CepNotFoundException;
 import com.luziano.reactive.exception.TaskNotFoundException;
 import com.luziano.reactive.model.Address;
 import com.luziano.reactive.model.Task;
@@ -60,6 +61,7 @@ public class TaskService {
 
     private Mono<Task> updateAddress(Task task, Address address) {
         return Mono.just(task)
+                .flatMap(it -> hasNullFields(address) ? Mono.error(CepNotFoundException::new) : Mono.just(it))
                 .map(it -> task.updateAddress(address));
     }
 
@@ -67,5 +69,14 @@ public class TaskService {
         return Mono.just(task)
                 .doOnNext(it -> log.info("Saving task with title \"{}\" - ({})", it.getTitle(), LocalDateTime.now()))
                 .flatMap(taskRepository::save);
+    }
+
+    private boolean hasNullFields(Address address) {
+        return address == null ||
+                address.getStreet() == null ||
+                address.getCity() == null ||
+                address.getState() == null ||
+                address.getZipCode() == null ||
+                address.getComplement() == null;
     }
 }
