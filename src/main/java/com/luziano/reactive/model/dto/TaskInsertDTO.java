@@ -10,14 +10,14 @@ import lombok.Setter;
 @Setter
 public class TaskInsertDTO {
 
-    @NotBlank(message = "Value invalid for field \"title\".")
-    @Size(min = 3, max = 20, message = "The title must be between 3 and 20 characters.")
+    @NotBlank(message = "{blank.title}")
+    @Size(min = 3, max = 20, message = "{invalid.title}")
     private String title;
 
-    @NotBlank(message = "Value invalid for field \"description\".")
-    @Size(max = 200, message = "The description must be less than 200 characters.")
+    @NotBlank(message = "{blank.description}")
+    @Size(max = 200, message = "{invalid.description}")
     private String description;
 
-    @Min(value = 1, message = "The priority must be greater than zero.")
+    @Min(value = 1, message = "{invalid.priority}")
     private int priority;
 }
