@@ -52,6 +52,12 @@ public class Task {
                 .build();
     }
 
+    public Task done() {
+        return builderFrom(this)
+                .withState(TaskState.DONE)
+                .build();
+    }
+
     public static Builder builder() {
         return new Builder();
     }

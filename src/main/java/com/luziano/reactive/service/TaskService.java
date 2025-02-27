@@ -62,6 +62,13 @@ public class TaskService {
                 .doOnError(error -> log.error("Error on start task. ID: {} - ({})", id, LocalDateTime.now(), error));
     }
 
+    public Mono<Task> done(Task task) {
+        return Mono.just(task)
+                .doOnNext(it -> log.info("Finishing task... | id: {}", task.getId()))
+                .map(Task::done)
+                .flatMap(taskRepository::save);
+    }
+
     private Mono<Task> updateAddress(Task task, Address address) {
         return Mono.just(task)
                 .flatMap(it -> hasNullFields(address) ? Mono.error(CepNotFoundException::new) : Mono.just(it))
