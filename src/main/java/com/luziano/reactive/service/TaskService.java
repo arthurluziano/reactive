@@ -16,6 +16,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -68,6 +69,15 @@ public class TaskService {
                 .doOnNext(it -> log.info("Done. | Id: {}", task.getId()))
                 .map(Task::done)
                 .flatMap(taskRepository::save);
+    }
+
+    public Mono<List<Task>> doneMany(List<String> ids) {
+        return Flux.fromIterable(ids)
+                .flatMap(id -> taskRepository.findById(id)
+                        .map(Task::done)
+                        .flatMap(taskRepository::save)
+                        .doOnNext(it -> log.info("Finishing task. | Id: {}", it.getId()))
+                ).collectList();
     }
 
     public Flux<Task> refreshCreatedAt() {

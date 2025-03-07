@@ -28,6 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/task")
@@ -85,5 +86,11 @@ public class TaskController {
     public Flux<TaskDTO> refreshCreatedAt() {
         return taskService.refreshCreatedAt()
                 .map(converter::convert);
+    }
+
+    @PostMapping("/done")
+    public Mono<List<TaskDTO>> done(@RequestBody List<String> ids) {
+        return taskService.doneMany(ids)
+                .map(converter::convertList);
     }
 }
