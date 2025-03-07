@@ -19,8 +19,8 @@ public class TaskNotificationConsumer {
     @KafkaListener(topics = "${kafka.task.notification.output}", groupId = "${kafka.task.notification-group.id}")
     public void receiveAndFinishTask(Task task) {
         Mono.just(task)
-                .doOnNext(it -> log.info("Receiving task to finish. | id: {}", task.getId()))
+                .doOnNext(it -> log.info("Receiving task to finish. | Id: {}", task.getId()))
                 .flatMap(taskService::done)
-                .block();
+                .subscribe();
     }
 }
