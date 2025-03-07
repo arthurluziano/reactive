@@ -4,6 +4,9 @@ import lombok.Getter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Getter
 @Document
 public class Task {
@@ -15,6 +18,7 @@ public class Task {
     private int priority;
     private TaskState state;
     private Address address;
+    private LocalDateTime createdAt;
 
     public Task(Builder builder) {
         this.id = builder.id;
@@ -23,6 +27,7 @@ public class Task {
         this.priority = builder.priority;
         this.state = builder.state;
         this.address = builder.address;
+        this.createdAt = builder.createdAt;
     }
 
     public Task() {}
@@ -30,6 +35,7 @@ public class Task {
     public Task insert() {
         return builderFrom(this)
                 .withState(TaskState.INSERT)
+                .withCreatedAt(LocalDateTime.now())
                 .build();
     }
 
@@ -58,6 +64,16 @@ public class Task {
                 .build();
     }
 
+    public Task createdNow() {
+        return builderFrom(this)
+                .withCreatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    public Boolean createdAtIsEmpty() {
+        return this.createdAt == null;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -73,6 +89,7 @@ public class Task {
         private int priority;
         private TaskState state;
         private Address address;
+        private LocalDateTime createdAt;
 
         public Builder(Task task) {
             this.id = task.id;
@@ -81,6 +98,7 @@ public class Task {
             this.priority = task.priority;
             this.state = task.state;
             this.address = task.address;
+            this.createdAt = task.createdAt;
         }
 
         public Builder() {}
@@ -112,6 +130,11 @@ public class Task {
 
         public Builder withAddress(Address address) {
             this.address = address;
+            return this;
+        }
+
+        public Builder withCreatedAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
             return this;
         }
 

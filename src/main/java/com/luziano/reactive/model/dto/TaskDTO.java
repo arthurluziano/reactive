@@ -5,6 +5,8 @@ import com.luziano.reactive.model.TaskState;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 public class TaskDTO {
@@ -14,4 +16,5 @@ public class TaskDTO {
     private int priority;
     private TaskState state;
     private Address address;
+    private LocalDateTime createdAt;
 }
