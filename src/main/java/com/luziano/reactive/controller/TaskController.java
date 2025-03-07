@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -77,6 +78,12 @@ public class TaskController {
     @PostMapping("/start")
     public Mono<TaskDTO> start(@RequestParam String id, @RequestParam String zipCode) {
         return taskService.start(id, zipCode)
+                .map(converter::convert);
+    }
+
+    @PostMapping("/refresh/createdAt")
+    public Flux<TaskDTO> refreshCreatedAt() {
+        return taskService.refreshCreatedAt()
                 .map(converter::convert);
     }
 }

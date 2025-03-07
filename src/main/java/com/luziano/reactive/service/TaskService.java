@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -64,8 +65,15 @@ public class TaskService {
 
     public Mono<Task> done(Task task) {
         return Mono.just(task)
-                .doOnNext(it -> log.info("Finishing task... | id: {}", task.getId()))
+                .doOnNext(it -> log.info("Done. | Id: {}", task.getId()))
                 .map(Task::done)
+                .flatMap(taskRepository::save);
+    }
+
+    public Flux<Task> refreshCreatedAt() {
+        return taskRepository.findAll()
+                .filter(Task::createdAtIsEmpty)
+                .map(Task::createdNow)
                 .flatMap(taskRepository::save);
     }
 
