@@ -74,6 +74,14 @@ public class Task {
         return this.createdAt == null;
     }
 
+    public Boolean isValidState() {
+        return this.state != null;
+    }
+
+    public Boolean isValidPriority() {
+        return this.priority > 0;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
