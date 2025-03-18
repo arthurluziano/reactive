@@ -7,6 +7,7 @@ import com.luziano.reactive.model.Address;
 import com.luziano.reactive.model.Task;
 import com.luziano.reactive.repository.TaskCustomRepository;
 import com.luziano.reactive.repository.TaskRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -91,6 +94,23 @@ public class TaskService {
         return Mono.just(task)
                 .flatMap(it -> hasNullFields(address) ? Mono.error(CepNotFoundException::new) : Mono.just(it))
                 .map(it -> task.updateAddress(address));
+    }
+
+    @PostConstruct
+    private void scheduleDoneOlderTasks() {
+        Mono.delay(Duration.ofSeconds(5))
+                .doOnNext(it -> log.info("Starting task monitoring"))
+                .subscribe();
+
+        Flux.interval(Duration.ofDays(1))
+                .flatMap(it -> doneOlderTasks())
+                .filter(tasks -> tasks > 0)
+                .doOnNext(tasks -> log.info("{} task(s) completed after being active for over 7 days.", tasks))
+                .subscribe();
+    }
+
+    private Mono<Long> doneOlderTasks() {
+        return taskCustomRepository.updateStateToDoneForOlderTasks(LocalDate.now().minusDays(7));
     }
 
     private Mono<Task> save(Task task) {

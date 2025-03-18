@@ -1,6 +1,8 @@
 package com.luziano.reactive.repository;
 
 import com.luziano.reactive.model.Task;
+import com.luziano.reactive.model.TaskState;
+import com.mongodb.client.result.UpdateResult;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -9,12 +11,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -22,11 +27,22 @@ import java.util.List;
 public class TaskCustomRepository {
 
     private final ReactiveMongoOperations mongoOperations;
+    private final ReactiveMongoTemplate mongoTemplate;
 
     public Mono<Page<Task>> findPaginated(Task task, Integer pageNumber, Integer pageSize) {
         return queryExample(task)
                 .zipWith(pageable(pageNumber, pageSize))
                 .flatMap(it -> execute(task, it.getT1(), it.getT2()));
+    }
+
+    public Mono<Long> updateStateToDoneForOlderTasks(LocalDate date) {
+        return mongoTemplate.updateMulti(
+                Query.query(Criteria
+                        .where("createdAt").lte(date) // lte = Less Then or Equal.
+                        .and("state").is(TaskState.DOING)),
+                Update.update("state", TaskState.DONE),
+                Task.class
+        ).map(UpdateResult::getModifiedCount);
     }
 
     private Mono<Page<Task>> execute(Task task, Example<Task> example, Pageable pageable) {
